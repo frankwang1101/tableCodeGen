@@ -2,7 +2,7 @@ pipeline {
   agent {
     docker {
       image 'node:6-alpine'
-      args '-p 3000:3000'
+      args '-v /Users/wangjian/Documents/learn/docker/jenkins:/var/jenkins_home'
     }
     
   }
