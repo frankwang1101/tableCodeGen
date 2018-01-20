@@ -1,11 +1,5 @@
 pipeline {
-  agent {
-    docker {
-      image 'node:6-alpine'
-      args '-v /Users/wangjian/Documents/learn/docker/jenkins:/var/jenkins_home'
-    }
-    
-  }
+  agent any
   stages {
     stage('Prepare environment') {
       steps {
@@ -29,5 +23,8 @@ pipeline {
 npm run build'''
       }
     }
+  }
+  environment {
+    q = 'w'
   }
 }
