@@ -1,10 +1,5 @@
 pipeline {
-  agent {
-    node {
-      label 'node'
-    }
-    
-  }
+  agent none
   stages {
     stage('Prepare environment') {
       steps {
