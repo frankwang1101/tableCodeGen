@@ -27,7 +27,7 @@ pipeline {
             sh 'echo "packing... "'
             sh 'cd dist && tar czf dist.tar.gz * '
             sh 'echo start scp ... '
-            sh 'scp -P 29130 ./dist root@172.96.221.115:/root/web/' 
+            sh 'scp -P 29130 -r ./dist root@172.96.221.115:/root/web/' 
             sh 'ssh root@172.96.221.115 -p 29130 "cd web/dist && tar xzvf dist.tar.gz && rm dist.tar.gz"'
             sh 'finish all'
           }
