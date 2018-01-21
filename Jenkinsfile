@@ -4,21 +4,11 @@ pipeline {
     tools {nodejs "node1"}
      
     stages {
-        stage('before') {
-            steps {
-                sh 'npm install'
-            }
-        }
-        stage('test'){
-          steps {
-            sh 'pwd'
-            sh 'echo "start test ... "'
-          }
-        }
+       
         stage('build'){
           steps {
             sh 'echo "start building .."'
-            sh 'rm -r dist'
+       
             sh 'npm run build'
             sh 'echo "end building .."'
           }
@@ -28,9 +18,9 @@ pipeline {
             sh 'echo "packing... "'
             sh 'cd dist && tar czf dist.tar.gz * '
             sh 'echo start scp ... '
-            sh 'scp -P 29130 -r ./dist root@172.96.221.115:/root/web/' 
+            sh 'scp -P 29130 dist.tar.gz root@172.96.221.115:/root/web/dist' 
             sh 'ssh root@172.96.221.115 -p 29130 "cd web/dist && tar xzvf dist.tar.gz && rm dist.tar.gz"'
-            sh 'finish all'
+            sh 'echo "deploy successfully"'
           }
         }
     }
