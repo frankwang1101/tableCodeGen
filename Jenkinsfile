@@ -4,7 +4,17 @@ pipeline {
     tools {nodejs "node1"}
      
     stages {
-       
+        stage('before') {
+            steps {
+                sh 'npm install'
+            }
+        }
+        stage('test'){
+          steps {
+            sh 'pwd'
+            sh 'echo "start test ... "'
+          }
+        }
         stage('build'){
           steps {
             sh 'echo "start building .."'
