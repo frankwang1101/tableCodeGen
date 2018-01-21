@@ -1,3 +1,4 @@
+/* eslint-disable */
 <template>
   <div class="wrap">
     <Steps :current="step">
@@ -19,16 +20,30 @@
         </Row>
       </Card>
       <Card v-show="step === 1" class="card">
+        <Row>
+          <Col span="6" offset="18">
+            <Row>
+              <Input placeholder="格式 name|value" v-model="currentAdd" v-if="addVisible"></Input>
+            <Button @click="rowAdd" >{{addVisible?'确定':'添加'}}</Button>
+            </Row>
+          </Col>
+        </Row>
         <Form ref="form" :model="form" :label-width="80" style="width: 100%">
           <FormItem v-for="(item, index) in form.items" :key="index" style="width:100%">
             <Row>
-              <Col span="3">{{item.value}}</Col>
-              <Col span="4">
+              <Col span="3">
+              <Input v-model="item.value" ></Input>
+              </Col>
+            
+            <Col span="1">
+            <Input v-model="item.span"></Input>
+            </Col>
+              <Col span="3">
               <Select v-model="item.type" @change="selectChange">
                 <Option v-for="item in typeList" :value="item.value" :key="item.value">{{ item.label }}</Option>
               </Select>
               </Col>
-              <Col span="3">
+              <Col span="5">
               <i-switch v-model="item.show" size="large">
                 <span slot="open">显示</span>
                 <span slot="close">隐藏</span>
@@ -42,8 +57,8 @@
                 <span slot="close">不搜</span>
               </i-switch>
               </Col>
-              <Col span="6">
-              <Button type="primary" disabled placeholder="设置校验规则" @click="openRuleModal(item.id)"></Button>
+              <Col span="3">
+              <Button type="primary" disabled  @click="openRuleModal(item.id)">设置校验规则</Button>
               </Col>
               <Col span="4" offset="1">
               <Button type="primary" shape="circle" @click="remove(index)" icon="close-round"></Button>
@@ -107,7 +122,7 @@
         </Row>
       </Modal>
       <Modal :visible.sync="ruleModal" title="校验规则填写">
-        <i-form v-ref:form-validate :model="rule" :label-width="80">
+        <i-form ref="form-validate" :model="rule" :label-width="80">
           <Form-item label="类型" prop="type">
             <i-select :model.sync="rule.type">
               <i-option value="string">Str</i-option>
@@ -156,93 +171,116 @@
 </template>
 
 <script>
-import axios from 'axios'
+import axios from "axios";
 
-const genId = (prefix) => {
-  return `${prefix || ''}${Date.now()}`;
-}
-const genListName = (name) => {
+const genId = prefix => {
+  return `${prefix || ""}${Date.now()}`;
+};
+const genListName = name => {
   let r1 = /^(.+)Name$/;
   let r2 = /^(.+)Id$/;
   let r3 = /^(.+)V$/;
   let arr = [r1, r2, r3];
-  let result = '';
+  let result = "";
   while (arr.length) {
     let r = arr.shift();
     if (r.test(name)) {
-      result = r.exec(name)[1] + 'List';
+      result = r.exec(name)[1] + "List";
       break;
     }
   }
   if (!result) {
-    result = name + 'List'
+    result = name + "List";
   }
   return result;
-}
+};
 export default {
-  name: 'HelloWorld',
+  name: "HelloWorld",
   data() {
     return {
       step: 0,
       form: {
         items: []
       },
+      currentAdd: "",
+      addVisible: false,
       typeList: [
-        { value: 'input', label: 'input' },
-        { value: 'select', label: 'select' },
-        { value: 'date', label: 'date' },
-        { value: 'switch', label: 'switch' },
-        { value: 'textarae', label: 'textarae' },
-        { value: 'auto', label: 'auto' }
+        { value: "input", label: "input" },
+        { value: "select", label: "select" },
+        { value: "date", label: "date" },
+        { value: "switch", label: "switch" },
+        { value: "textarae", label: "textarae" },
+        { value: "auto", label: "auto" }
       ],
-      words: '',
+      words: "",
       NEEDAUTHCHECK__: true,
-      execTmpl: '',
-      result: '',
+      execTmpl: "",
+      result: "",
       isChecked: true,
       isColChange: true,
-      fileName: '',
-      url: '',
+      fileName: "",
+      url: "",
       isPage: true,
       ruleModal: false,
       selectModal: false,
       rule: {
-        type: '',
-        trigger: '',
-        start: '',
-        end: '',
-        required: '',
-        msg: '',
+        type: "",
+        trigger: "",
+        start: "",
+        end: "",
+        required: "",
+        msg: ""
       },
       selectOpt: [],
-      activeId: '',
-      opts: [],
-
-    }
+      activeId: "",
+      opts: []
+    };
   },
   mounted() {
-    debugger
-    console.log(this.ccc_)
-    console.log(this.NEEDAUTHCHECK__)
-    console.log(this.$router)
-    console.log(this.$route)
-    let execTmpl = localStorage.getItem('___execTmpl');
+    debugger;
+    console.log(this.ccc_);
+    console.log(this.NEEDAUTHCHECK__);
+    console.log(this.$router);
+    console.log(this.$route);
+    let execTmpl = localStorage.getItem("___execTmpl");
     if (execTmpl) {
       this.execTmpl = execTmpl;
     }
   },
   methods: {
+    rowAdd() {
+      if (this.addVisible) {
+        debugger
+        if (/^.+\|.+$/.test(this.currentAdd)) {
+          let res = this.currentAdd.split("|");
+          this.form.items.push({
+            id: genId(),
+            key: res[0],
+            value: res[1],
+            type: "input",
+            show: false,
+            isAdd: true,
+            isSearch: false,
+            seq: this.form.items.length,
+            rule: {},
+            span: 16,
+            listName: ""
+          });
+        }
+      }
+      this.addVisible = !this.addVisible
+    },
     newOption() {
       this.selectOpt.push({
-        id: genId('opt'),
-        key: '',
-        value: ''
-      })
+        id: genId("opt"),
+        key: "",
+        value: ""
+      });
     },
     completeOption() {
       let target = this.form.items.find(v => v.id === this.activeId);
       if (target) {
-        let name = genListName(target.name)
+        let name = genListName(target.name);
         target.listName = name;
         this.opts[name] = this.selectOpt.slice();
       }
@@ -251,7 +289,7 @@ export default {
       this.selectOpt = this.selectOpt.filter(v => v.id !== id);
     },
     selectChange(value) {
-      if (value === 'select') {
+      if (value === "select") {
         this.selectModal = true;
       } else {
         this.selectModal = false;
@@ -260,33 +298,37 @@ export default {
     },
     handleSubmit(name) {
       let target = this.form.items.find(v => v.id === this.activeId);
-      let r = Object.assign({}, {
-        type: this.rule.type,
-        trigger: this.rule.trigger,
-        required: (this.rule.required === true || this.rule.required === 'true'),
-        message: this.rule.msg,
-        max: this.rule.start,
-        min: this.rule.end,
-      })
+      let r = Object.assign(
+        {},
+        {
+          type: this.rule.type,
+          trigger: this.rule.trigger,
+          required:
+            this.rule.required === true || this.rule.required === "true",
+          message: this.rule.msg,
+          max: this.rule.start,
+          min: this.rule.end
+        }
+      );
       switch (this.rule.type) {
-        case 'number': {
+        case "number": {
           delete r.max;
           delete r.min;
           delete r.type;
           break;
         }
-        case 'string': {
+        case "string": {
           delete r.type;
           if (!r.start) {
-            delete r.max
+            delete r.max;
           }
           if (!r.end) {
-            delete r.min
+            delete r.min;
           }
           break;
         }
-        case 'date':
-        case 'email': {
+        case "date":
+        case "email": {
           delete r.max;
           delete r.min;
           break;
@@ -303,33 +345,34 @@ export default {
       this.form.items.splice(idx, 1);
     },
     checkMoveBtn(idx, type) {
-      if (type === 'up' && idx === 0) {
-        return false
-      } else if (type === 'down' && idx === (this.form.items.length - 1)) {
-        return false
+      if (type === "up" && idx === 0) {
+        return false;
+      } else if (type === "down" && idx === this.form.items.length - 1) {
+        return false;
       }
       return true;
     },
     move(idx, type) {
-      let num = type === 'up' ? -1 : 1;
+      let num = type === "up" ? -1 : 1;
       let target = this.form.items[idx];
       let switchOne = this.form.items[idx + num];
       target.seq += num;
       switchOne.seq -= num;
       if (num > 0) {
-        this.form.items.splice(idx, 2, switchOne, target)
+        this.form.items.splice(idx, 2, switchOne, target);
       } else {
-        this.form.items.splice(idx - 1, 2, target, switchOne)
+        this.form.items.splice(idx - 1, 2, target, switchOne);
       }
     },
     _renderDatas() {
+      debugger;
       let word = JSON.parse(this.words);
       let execObj = JSON.parse(this.execTmpl);
       let key = execObj.key;
       let value = execObj.value;
 
-      let names = key.split('.');
-      let last = '';
+      let names = key.split(".");
+      let last = "";
       last = names.pop();
       let obj = word;
       let datas = [];
@@ -339,108 +382,116 @@ export default {
       if (!obj) {
         obj = word;
       }
-      if (last !== '__NAME__' && obj instanceof Array) {
+      if (last !== "__NAME__" && obj instanceof Array) {
         datas = obj.map((v, idx) => {
           return {
             id: genId(),
             key: v[last],
             value: v[value],
-            type: 'input',
+            type: "input",
             show: false,
             isAdd: true,
             isSearch: false,
             seq: idx,
             rule: {},
-            listName: '',
-          }
-        })
+            span: 16,
+            listName: ""
+          };
+        });
       } else {
         let keys = Object.keys(obj);
-        if (value !== '__STR') {
-          keys = keys.filter(v => typeof obj[v] === 'object');
+        if (value !== "__STR") {
+          keys = keys.filter(v => typeof obj[v] === "object");
         }
         datas = keys.map((v, idx) => ({
           id: genId(),
           key: v,
-          value: (value !== '__STR') ? obj[v][value] : obj[v],
-          type: 'input',
+          value: value !== "__STR" ? obj[v][value] : obj[v],
+          type: "input",
           show: false,
           isAdd: true,
           isSearch: false,
           seq: idx,
           rule: {},
-          listName: '',
-        }))
+          span: 16,
+          listName: ""
+        }));
       }
       this.form.items = datas;
     },
     handleOperate(type) {
       switch (type) {
-        case 'empty': {
-          this.words = '';
-          this.execTmpl = '';
+        case "empty": {
+          this.words = "";
+          this.execTmpl = "";
           break;
         }
-        case 'prev': {
+        case "prev": {
           this.step--;
           break;
         }
-        case 'next': {
+        case "next": {
           if (this.step === 0) {
             if (!this.words || !this.execTmpl) {
               this.$Notice.open({
-                title: '提醒',
-                desc: '请填写内容框和模版框'
+                title: "提醒",
+                desc: "请填写内容框和模版框"
               });
               break;
             } else {
-              localStorage.setItem('___execTmpl', this.execTmpl);
+              localStorage.setItem("___execTmpl", this.execTmpl);
               this._renderDatas();
             }
           } else {
-            this.result = JSON.stringify({ data: this.form.items, add: this.form.items.filter(v => v.isAdd) });
+            this.result = JSON.stringify({
+              data: this.form.items,
+              add: this.form.items.filter(v => v.isAdd)
+            });
           }
           this.step++;
           break;
         }
-        case 'complete': {
+        case "complete": {
           let chooseIdx = [];
           let search = [];
           this.form.items.forEach((v, i) => {
             if (v.show) {
-              chooseIdx.push(i)
+              chooseIdx.push(i);
             }
             if (v.isSearch) {
               search.push({
                 key: v.key,
                 value: v.value
-              })
+              });
             }
-          })
+          });
           let result = {
             data: this.form.items,
             addData: this.form.items.filter(v => v.isAdd),
             checked: this.isChecked,
             col: this.isColChange,
-            chooseIdx: chooseIdx.join(','),
+            chooseIdx: chooseIdx.join(","),
             isPage: this.isPage,
             search
-          }
+          };
           let fileName = this.fileName;
           let params = new URLSearchParams();
-          debugger
-          params.append('data', JSON.stringify(result));
-          let self = this
-          axios.post(`http://localhost:3000/receive`, { params: JSON.stringify(result) })
+          debugger;
+          params.append("data", JSON.stringify(result));
+          let self = this;
+          axios
+            .post(`http://localhost:3000/receive`, {
+              params: JSON.stringify(result)
+            })
             .then(res => {
               if (res.data.success) {
                 self.url = `http://localhost:3000/download?filename=${fileName}`;
               }
-            })
+            });
           break;
         }
-        case 'download': {
-          window.open(this.url, '__BLANK');
+        case "download": {
+          window.open(this.url, "__BLANK");
           break;
         }
         default:
@@ -450,19 +501,26 @@ export default {
   },
   computed: {
     emptyShow() {
-      return this.step === 0
+      return this.step === 0;
     },
     prevShow() {
-      return this.step > 0
+      return this.step > 0;
     },
     nextShow() {
-      return this.step < 2
+      return this.step < 2;
     },
     finishShow() {
-      return this.step === 2
+      return this.step === 2;
+    }
+  },
+  watch: {
+    addVisible(v) {
+      if (!v) {
+        this.currentAdd = "";
+      }
     }
   }
-}
+};
 </script>
 
 <style scoped>
