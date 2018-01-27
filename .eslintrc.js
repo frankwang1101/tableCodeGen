@@ -24,6 +24,7 @@ module.exports = {
     'space-before-function-paren': 0,
     'semi': 0,
     "indent": 0,
-    "comma-dangle": 0
+    "comma-dangle": 0,
+    "quotes": 0
   }
 }

@@ -1,3 +1,4 @@
+/* eslint-disable */
 <template>
   <div class="wrap">
     <Steps :current="step">
@@ -19,31 +20,49 @@
         </Row>
       </Card>
       <Card v-show="step === 1" class="card">
+        <Row>
+          <Col span="6" offset="18">
+            <Row>
+              <Input placeholder="格式 name|value" v-model="currentAdd" v-if="addVisible"></Input>
+            <Button @click="rowAdd" >{{addVisible?'确定':'添加'}}</Button>
+            </Row>
+          </Col>
+        </Row>
         <Form ref="form" :model="form" :label-width="80" style="width: 100%">
           <FormItem v-for="(item, index) in form.items" :key="index" style="width:100%">
             <Row>
-              <Col span="3">{{item.value}}</Col>
-              <Col span="4">
+              <Col span="3">
+              <Input v-model="item.value" ></Input>
+              </Col>
+            
+            <Col span="1">
+            <Input v-model="item.span"></Input>
+            </Col>
+              <Col span="3">
               <Select v-model="item.type" @change="selectChange">
                 <Option v-for="item in typeList" :value="item.value" :key="item.value">{{ item.label }}</Option>
               </Select>
               </Col>
-              <Col span="3">
+              <Col span="6">
+              <i-switch v-model="item.list" size="large">
+                <span slot="open">list</span>
+                <span slot="close">no</span>
+              </i-switch>
               <i-switch v-model="item.show" size="large">
-                <span slot="open">显示</span>
-                <span slot="close">隐藏</span>
+                <span slot="open">show</span>
+                <span slot="close">no</span>
               </i-switch>
               <i-switch v-model="item.isAdd" size="large">
                 <span slot="open">Add</span>
                 <span slot="close">Not</span>
               </i-switch>
               <i-switch v-model="item.isSearch" size="large">
-                <span slot="open">搜索</span>
-                <span slot="close">不搜</span>
+                <span slot="open">search</span>
+                <span slot="close">no</span>
               </i-switch>
               </Col>
-              <Col span="6">
-              <Button type="primary" disabled placeholder="设置校验规则" @click="openRuleModal(item.id)"></Button>
+              <Col span="3">
+              <Button type="primary"  @click="openRuleModal(item.id)">设置校验规则</Button>
               </Col>
               <Col span="4" offset="1">
               <Button type="primary" shape="circle" @click="remove(index)" icon="close-round"></Button>
@@ -76,7 +95,6 @@
           </Col>
           <Col span="12"> 文件名
           <Input type="text" v-model="fileName" placeholder="Enter name..."></Input>
-          </i-switch>
           </Col>
         </Row>
 
@@ -88,28 +106,11 @@
         <Button v-show="finishShow" @click="handleOperate('complete')" type="primary">完成</Button>
         <Button v-show="url !== ''" @click="handleOperate('download')" type="primary">下载</Button>
       </Row>
-      <Modal :visible.sync="selectModal" title="校验规则填写">
-        <Row v-for="(item, key) in selectOpt" :key="key">
-          <Col span="10" style="text-align:center;">
-          <Input type="text" v-model="item.key"></Input>
-          </Col>
-          <Col span="10" style="text-align:center;">
-          <Input type="text" v-model="item.value"></Input>
-          </Col>
-          <Col span="2" style="text-align: center" offset="2">
-          <i-button type="primary" shape="circle" icon="minus" @click="removeOption(item.id)"></i-button>
-          </Col>
-        </Row>
-        <Row>
-          <Button v-show="emptyShow" @click="newOption">添加</Button>
-          <Button v-show="prevShow" @click="completeOption">完成</Button>
-          <!-- <Button v-show="prevShow" @click="clearOption">清除</Button> -->
-        </Row>
-      </Modal>
-      <Modal :visible.sync="ruleModal" title="校验规则填写">
-        <i-form v-ref:form-validate :model="rule" :label-width="80">
+    
+      <Modal v-model="ruleModal" title="校验规则填写">
+        <i-form ref="form-validate" :model="rule" :label-width="80">
           <Form-item label="类型" prop="type">
-            <i-select :model.sync="rule.type">
+            <i-select v-model="rule.type">
               <i-option value="string">Str</i-option>
               <i-option value="number">Num</i-option>
               <i-option value="date">Date</i-option>
@@ -117,7 +118,7 @@
             </i-select>
           </Form-item>
           <Form-item label="触发方式" prop="trigger">
-            <i-select :model.sync="rule.trigger">
+            <i-select v-model="rule.trigger">
               <i-option value="blur">blur</i-option>
             </i-select>
           </Form-item>
@@ -125,25 +126,25 @@
             <Row>
               <i-col span="11">
                 <Form-item prop="start">
-                  <i-input :value.sync="rule.start"></i-input>
+                  <i-input v-model="rule.start"></i-input>
                 </Form-item>
               </i-col>
               <i-col span="2" style="text-align: center">-</i-col>
               <i-col span="11">
                 <Form-item prop="end">
-                  <i-input :value.sync="rule.end"></i-input>
+                  <i-input v-model="rule.end"></i-input>
                 </Form-item>
               </i-col>
             </Row>
           </Form-item>
           <Form-item label="必填">
-            <Switch :checked.sync="rule.required" size="large">
-              <span slot="true">是</span>
-              <span slot="false">否</span>
-            </Switch>
+            <i-switch v-model="rule.required" size="large">
+              <span slot="open">是</span>
+              <span slot="close">否</span>
+            </i-switch>
           </Form-item>
           <Form-item label="提醒内容" prop="msg">
-            <i-input :value.sync="rule.msg" placeholder="请输入..."></i-input>
+            <i-input v-model="rule.msg" placeholder="请输入..."></i-input>
           </Form-item>
           <Form-item>
             <i-button type="primary" @click="handleSubmit('rule')">确认</i-button>
@@ -151,98 +152,128 @@
           </Form-item>
         </i-form>
       </Modal>
+      
     </div>
   </div>
 </template>
 
 <script>
-import axios from 'axios'
+import axios from "axios";
 
-const genId = (prefix) => {
-  return `${prefix || ''}${Date.now()}`;
-}
-const genListName = (name) => {
+const genId = prefix => {
+  return `${prefix || ""}${Math.random()
+    .toString(32)
+    .substr(2)}`;
+};
+const genListName = name => {
   let r1 = /^(.+)Name$/;
   let r2 = /^(.+)Id$/;
   let r3 = /^(.+)V$/;
   let arr = [r1, r2, r3];
-  let result = '';
+  let result = "";
   while (arr.length) {
     let r = arr.shift();
     if (r.test(name)) {
-      result = r.exec(name)[1] + 'List';
+      result = r.exec(name)[1] + "List";
       break;
     }
   }
   if (!result) {
-    result = name + 'List'
+    result = name + "List";
   }
   return result;
-}
+};
 export default {
-  name: 'HelloWorld',
+  name: "HelloWorld",
   data() {
     return {
       step: 0,
       form: {
         items: []
       },
+      currentAdd: "",
+      addVisible: false,
       typeList: [
-        { value: 'input', label: 'input' },
-        { value: 'select', label: 'select' },
-        { value: 'date', label: 'date' },
-        { value: 'switch', label: 'switch' },
-        { value: 'textarae', label: 'textarae' },
-        { value: 'auto', label: 'auto' }
+        { value: "input", label: "input" },
+        { value: "select", label: "select" },
+        { value: "date", label: "date" },
+        { value: "switch", label: "switch" },
+        { value: "textarae", label: "textarae" },
+        { value: "auto", label: "auto" }
       ],
-      words: '',
+      words: "",
       NEEDAUTHCHECK__: true,
-      execTmpl: '',
-      result: '',
+      execTmpl: "",
+      result: "",
       isChecked: true,
       isColChange: true,
-      fileName: '',
-      url: '',
+      fileName: "",
+      url: "",
       isPage: true,
       ruleModal: false,
       selectModal: false,
       rule: {
-        type: '',
-        trigger: '',
-        start: '',
-        end: '',
-        required: '',
-        msg: '',
+        type: "",
+        trigger: "",
+        start: "",
+        end: "",
+        required: "",
+        msg: ""
       },
       selectOpt: [],
-      activeId: '',
-      opts: [],
-
-    }
+      activeId: "",
+      opts: []
+    };
   },
   mounted() {
-    debugger
-    console.log(this.ccc_)
-    console.log(this.NEEDAUTHCHECK__)
-    console.log(this.$router)
-    console.log(this.$route)
-    let execTmpl = localStorage.getItem('___execTmpl');
+    console.log(this.ccc_);
+    console.log(this.NEEDAUTHCHECK__);
+    console.log(this.$router);
+    console.log(this.$route);
+    let execTmpl = localStorage.getItem("___execTmpl");
     if (execTmpl) {
       this.execTmpl = execTmpl;
     }
   },
   methods: {
+    openRuleModal(id) {
+      this.ruleModal = true;
+      this.activeId = id;
+      this.$refs["form-validate"].resetFields();
+      console.log("now active", id);
+    },
+    rowAdd() {
+      if (this.addVisible) {
+        if (/^.+\|.+$/.test(this.currentAdd)) {
+          let res = this.currentAdd.split("|");
+          this.form.items.push({
+            id: genId(),
+            key: res[0],
+            value: res[1],
+            type: "input",
+            show: false,
+            isAdd: true,
+            isSearch: false,
+            seq: this.form.items.length,
+            rule: {},
+            span: 16,
+            listName: ""
+          });
+        }
+      }
+      this.addVisible = !this.addVisible;
+    },
     newOption() {
       this.selectOpt.push({
-        id: genId('opt'),
-        key: '',
-        value: ''
-      })
+        id: genId("opt"),
+        key: "",
+        value: ""
+      });
     },
     completeOption() {
       let target = this.form.items.find(v => v.id === this.activeId);
       if (target) {
-        let name = genListName(target.name)
+        let name = genListName(target.name);
         target.listName = name;
         this.opts[name] = this.selectOpt.slice();
       }
@@ -251,7 +282,7 @@ export default {
       this.selectOpt = this.selectOpt.filter(v => v.id !== id);
     },
     selectChange(value) {
-      if (value === 'select') {
+      if (value === "select") {
         this.selectModal = true;
       } else {
         this.selectModal = false;
@@ -259,34 +290,40 @@ export default {
       }
     },
     handleSubmit(name) {
+      debugger;
       let target = this.form.items.find(v => v.id === this.activeId);
-      let r = Object.assign({}, {
-        type: this.rule.type,
-        trigger: this.rule.trigger,
-        required: (this.rule.required === true || this.rule.required === 'true'),
-        message: this.rule.msg,
-        max: this.rule.start,
-        min: this.rule.end,
-      })
+      console.log(this.rule);
+      let r = Object.assign(
+        {},
+        {
+          type: this.rule.type,
+          trigger: this.rule.trigger,
+          required:
+            this.rule.required === true || this.rule.required === "true",
+          message: this.rule.msg,
+          max: this.rule.start,
+          min: this.rule.end
+        }
+      );
       switch (this.rule.type) {
-        case 'number': {
+        case "number": {
           delete r.max;
           delete r.min;
           delete r.type;
           break;
         }
-        case 'string': {
+        case "string": {
           delete r.type;
-          if (!r.start) {
-            delete r.max
+          if (!r.max) {
+            delete r.max;
           }
-          if (!r.end) {
-            delete r.min
+          if (!r.min) {
+            delete r.min;
           }
           break;
         }
-        case 'date':
-        case 'email': {
+        case "date":
+        case "email": {
           delete r.max;
           delete r.min;
           break;
@@ -295,7 +332,10 @@ export default {
           break;
       }
       target.rule = r;
+      this.ruleModal = false;
+      this.activeId = "";
     },
+
     handleReset(name) {
       this.$refs[name].resetFields();
     },
@@ -303,23 +343,23 @@ export default {
       this.form.items.splice(idx, 1);
     },
     checkMoveBtn(idx, type) {
-      if (type === 'up' && idx === 0) {
-        return false
-      } else if (type === 'down' && idx === (this.form.items.length - 1)) {
-        return false
+      if (type === "up" && idx === 0) {
+        return false;
+      } else if (type === "down" && idx === this.form.items.length - 1) {
+        return false;
       }
       return true;
     },
     move(idx, type) {
-      let num = type === 'up' ? -1 : 1;
+      let num = type === "up" ? -1 : 1;
       let target = this.form.items[idx];
       let switchOne = this.form.items[idx + num];
       target.seq += num;
       switchOne.seq -= num;
       if (num > 0) {
-        this.form.items.splice(idx, 2, switchOne, target)
+        this.form.items.splice(idx, 2, switchOne, target);
       } else {
-        this.form.items.splice(idx - 1, 2, target, switchOne)
+        this.form.items.splice(idx - 1, 2, target, switchOne);
       }
     },
     _renderDatas() {
@@ -328,8 +368,8 @@ export default {
       let key = execObj.key;
       let value = execObj.value;
 
-      let names = key.split('.');
-      let last = '';
+      let names = key.split(".");
+      let last = "";
       last = names.pop();
       let obj = word;
       let datas = [];
@@ -339,108 +379,131 @@ export default {
       if (!obj) {
         obj = word;
       }
-      if (last !== '__NAME__' && obj instanceof Array) {
+      if (last !== "__NAME__" && obj instanceof Array) {
         datas = obj.map((v, idx) => {
           return {
             id: genId(),
             key: v[last],
             value: v[value],
-            type: 'input',
+            type: "input",
             show: false,
             isAdd: true,
+            list: true,
             isSearch: false,
             seq: idx,
             rule: {},
-            listName: '',
-          }
-        })
+            span: 16,
+            listName: ""
+          };
+        });
       } else {
         let keys = Object.keys(obj);
-        if (value !== '__STR') {
-          keys = keys.filter(v => typeof obj[v] === 'object');
+        if (value !== "__STR") {
+          keys = keys.filter(v => typeof obj[v] === "object");
         }
         datas = keys.map((v, idx) => ({
           id: genId(),
           key: v,
-          value: (value !== '__STR') ? obj[v][value] : obj[v],
-          type: 'input',
+          value: value !== "__STR" ? obj[v][value] : obj[v],
+          type: "input",
           show: false,
           isAdd: true,
+          list: true,
           isSearch: false,
           seq: idx,
           rule: {},
-          listName: '',
-        }))
+          span: 16,
+          listName: ""
+        }));
       }
       this.form.items = datas;
     },
     handleOperate(type) {
       switch (type) {
-        case 'empty': {
-          this.words = '';
-          this.execTmpl = '';
+        case "empty": {
+          this.words = "";
+          this.execTmpl = "";
           break;
         }
-        case 'prev': {
+        case "prev": {
           this.step--;
           break;
         }
-        case 'next': {
+        case "next": {
           if (this.step === 0) {
             if (!this.words || !this.execTmpl) {
               this.$Notice.open({
-                title: '提醒',
-                desc: '请填写内容框和模版框'
+                title: "提醒",
+                desc: "请填写内容框和模版框"
               });
               break;
             } else {
-              localStorage.setItem('___execTmpl', this.execTmpl);
+              localStorage.setItem("___execTmpl", this.execTmpl);
               this._renderDatas();
             }
           } else {
-            this.result = JSON.stringify({ data: this.form.items, add: this.form.items.filter(v => v.isAdd) });
+            this.result = JSON.stringify({
+              data: this.form.items,
+              add: this.form.items.filter(v => v.isAdd)
+            });
           }
           this.step++;
           break;
         }
-        case 'complete': {
+        case "complete": {
           let chooseIdx = [];
+          let chooseName = [];
           let search = [];
           this.form.items.forEach((v, i) => {
-            if (v.show) {
-              chooseIdx.push(i)
-            }
             if (v.isSearch) {
               search.push({
                 key: v.key,
                 value: v.value
-              })
+              });
             }
-          })
+          });
+          let r = this.form.items.filter(v => v.list);
+          r.forEach((v, i) => {
+            if (v.show) {
+              chooseIdx.push(i);
+              chooseName.push(v.value)
+            }
+          });
           let result = {
-            data: this.form.items,
-            addData: this.form.items.filter(v => v.isAdd),
+            data: r,
+            addData: this.form.items.filter(v => v.isAdd).map((v, i) => {
+              return Object.keys(v.rule).length
+                ? {
+                    ...v,
+                    rule: `[${JSON.stringify(v.rule).replace(/"/g, "'")}]`
+                  }
+                : { ...v, rule: false };
+            }),
             checked: this.isChecked,
             col: this.isColChange,
-            chooseIdx: chooseIdx.join(','),
+            chooseIdx: chooseIdx.join(","),
+            chooseName: chooseName.join(","),
             isPage: this.isPage,
             search
-          }
+          };
           let fileName = this.fileName;
           let params = new URLSearchParams();
-          debugger
-          params.append('data', JSON.stringify(result));
-          let self = this
-          axios.post(`http://localhost:3000/receive`, { params: JSON.stringify(result) })
+          console.log(result, "pdata");
+          params.append("data", JSON.stringify(result));
+          let self = this;
+          axios
+            .post(`http://localhost:3000/receive`, {
+              params: JSON.stringify(result)
+            })
             .then(res => {
               if (res.data.success) {
                 self.url = `http://localhost:3000/download?filename=${fileName}`;
               }
-            })
+            });
           break;
         }
-        case 'download': {
-          window.open(this.url, '__BLANK');
+        case "download": {
+          window.open(this.url, "__BLANK");
           break;
         }
         default:
@@ -450,19 +513,26 @@ export default {
   },
   computed: {
     emptyShow() {
-      return this.step === 0
+      return this.step === 0;
     },
     prevShow() {
-      return this.step > 0
+      return this.step > 0;
     },
     nextShow() {
-      return this.step < 2
+      return this.step < 2;
     },
     finishShow() {
-      return this.step === 2
+      return this.step === 2;
+    }
+  },
+  watch: {
+    addVisible(v) {
+      if (!v) {
+        this.currentAdd = "";
+      }
     }
   }
-}
+};
 </script>
 
 <style scoped>
