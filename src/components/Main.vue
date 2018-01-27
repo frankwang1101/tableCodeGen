@@ -363,6 +363,7 @@ export default {
       }
     },
     _renderDatas() {
+      debugger;
       let word = JSON.parse(this.words);
       let execObj = JSON.parse(this.execTmpl);
       let key = execObj.key;
