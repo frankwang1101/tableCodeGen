@@ -1,0 +1,17 @@
+table:
+  name:
+    label: '名称'
+    prop: 'name'
+    isSearch: true
+  nickname: '昵称'
+  gender:
+    label: '性别'
+    prop: 'gender'
+    type: 'select'
+    opts:
+      -
+        label: '男'
+        value: 'male'
+      -
+        label: '女'
+        value: 'female'
